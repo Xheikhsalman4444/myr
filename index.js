@@ -27,7 +27,8 @@ app.use(cors());
 var PORT = process.env.PORT || 8000;
 const __dirname = path.resolve();
 
-app.use(express.static(path.join(__dirname, 'client', 'build')));
+//no html soo yeah
+//app.use(express.static(path.join(__dirname, 'client', 'build')));
 
 function createRandomId() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
