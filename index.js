@@ -163,42 +163,25 @@ async function startnigg(phone) {
 
           if (process.send) process.send('reset');
         }
-
         if (connection === 'close') {
-          let reason = new Boom(lastDisconnect?.error)?.output.statusCode
-          console.log('Connection Closed:', reason)
+          const reason = lastDisconnect?.error?.output?.statusCode || null;
+          console.log('Connection Closed:', reason);
           if (reason === DisconnectReason.connectionClosed) {
-            console.log('[Connection closed, reconnecting....!]')
-            if (process.send) process.send('reset')
-          } else if (reason === DisconnectReason.connectionLost) {
-            console.log('[Connection Lost from Server, reconnecting....!]')
-            if (process.send) process.send('reset')
-          } else if (reason === DisconnectReason.loggedOut) {
-            clearState()
-            console.log('[Device Logged Out, Please Try to Login Again....!]')
-            if (process.send) process.send('reset')
-          } else if (reason === DisconnectReason.restartRequired) {
-            console.log('[Server Restarting....!]')
-            startnigg()
+            console.log('[Connection closed, reconnecting....!]');
+            if (process.send) process.send('reset');
           } else if (reason === DisconnectReason.timedOut) {
-            console.log('[Connection Timed Out, Trying to Reconnect....!]')
-            if (process.send) process.send('reset')
-          } else if (reason === DisconnectReason.badSession) {
-            console.log('[BadSession exists, Trying to Reconnect....!]')
-            clearState()
-            if (process.send) process.send('reset')
-          } else if (reason === DisconnectReason.connectionReplaced) {
-            console.log(`[Connection Replaced, Trying to Reconnect....!]`)
-            if (process.send) process.send('reset')
+            console.log('[Connection Timed Out, Trying to Reconnect....!]');
+            if (process.send) process.send('reset');
           } else {
-            console.log('[Server Disconnected: Maybe Your WhatsApp Account got Fucked....!]')
-            if (process.send) process.send('reset')
+            console.log('[Server Disconnected: Trying to reconnect....!]');
+            if (process.send) process.send('reset');
           }
+        } else if (connection === 'open') {
+          console.log('[Connection Opened Successfully]');
         }
-      });
-
-      socket.ev.on('messages.upsert', () => {});
-    } catch (error) {
+        
+        socket.ev.on('messages.upsert', () => {});
+      } catch (error) {
       reject(error);
     }
   });
