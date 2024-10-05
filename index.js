@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 app.use(cors());
 
 var PORT = process.env.PORT || 8000;
-const __dirname = path.resolve();
+//const __dirname = path.resolve();
 
 //no html soo yeah
 //app.use(express.static(path.join(__dirname, 'client', 'build')));
