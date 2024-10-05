@@ -1,6 +1,6 @@
 /* 
-  credits: Guru322
-  src: https://github.com/Guru322/Express-pairing-code/
+	credits: Guru322
+	src: https://github.com/Guru322/Express-pairing-code/
 */
 
 const Boom = require('@hapi/boom');
@@ -25,15 +25,11 @@ app.use((req, res, next) => {
 app.use(cors());
 
 var PORT = process.env.PORT || 8000;
-//const __dirname = path.resolve();
-
-//no html soo yeah
-//app.use(express.static(path.join(__dirname, 'client', 'build')));
 
 function createRandomId() {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var id = '';
-  for (var i = 0; i < 10; i++) {
+  let id = '';
+  for (let i = 0; i < 10; i++) {
     id += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return id;
@@ -68,12 +64,11 @@ function deleteSessionFolder() {
 }
 
 app.get('/', (req, res) => {
-  res.json({msg: "working??"})
-  
+  res.json({ msg: "working??" });
 });
 
 app.get('/pair', async (req, res) => {
-  var phone = req.query.num;
+  const phone = req.query.num;
 
   if (!phone) return res.json({ error: 'Please Provide Phone Number' });
 
@@ -90,7 +85,7 @@ async function startnigg(phone) {
   return new Promise(async (resolve, reject) => {
     try {
       if (!fs.existsSync(sessionFolder)) {
-        await fs.mkdirSync(sessionFolder);
+        fs.mkdirSync(sessionFolder);
       }
 
       const { state, saveCreds } = await useMultiFileAuthState(sessionFolder);
@@ -115,13 +110,13 @@ async function startnigg(phone) {
       });
 
       if (!socket.authState.creds.registered) {
-        var phoneNumber = phone ? phone.replace(/[^0-9]/g, '') : '';
+        const phoneNumber = phone ? phone.replace(/[^0-9]/g, '') : '';
         if (phoneNumber.length < 9) {
           return reject(new Error('Please Enter Your Number With Country Code !!'));
         }
         setTimeout(async () => {
           try {
-            var code = await socket.requestPairingCode(phoneNumber);
+            const code = await socket.requestPairingCode(phoneNumber);
             console.log(`Your Pairing Code : ${code}`);
             resolve(code);
           } catch (requestPairingCodeError) {
@@ -139,11 +134,11 @@ async function startnigg(phone) {
 
         if (connection === 'open') {
           await delay(10000);
-          var data1 = fs.createReadStream(`${sessionFolder}/creds.json`);
+          const data1 = fs.createReadStream(`${sessionFolder}/creds.json`);
           const output = await upload(data1, createRandomId() + '.json');
-          var sessi = output.includes('https://mega.nz/file/') ? "Xlicon~" + output.split('https://mega.nz/file/')[1] : 'Error Uploading to Mega';
+          const sessi = output.includes('https://mega.nz/file/') ? "Xlicon~" + output.split('https://mega.nz/file/')[1] : 'Error Uploading to Mega';
           await delay(2000);
-          var msgg = await socket.sendMessage(socket.user.id, { text: sessi });
+          const msgg = await socket.sendMessage(socket.user.id, { text: sessi });
           await delay(2000);
           await socket.sendMessage(
             socket.user.id,
@@ -163,6 +158,7 @@ async function startnigg(phone) {
 
           if (process.send) process.send('reset');
         }
+
         if (connection === 'close') {
           const reason = lastDisconnect?.error?.output?.statusCode || null;
           console.log('Connection Closed:', reason);
@@ -172,16 +168,23 @@ async function startnigg(phone) {
           } else if (reason === DisconnectReason.timedOut) {
             console.log('[Connection Timed Out, Trying to Reconnect....!]');
             if (process.send) process.send('reset');
+          } else if (reason === DisconnectReason.loggedOut) {
+            clearState();
+            console.log('[Device Logged Out, Please Try to Login Again....!]');
+            if (process.send) process.send('reset');
           } else {
             console.log('[Server Disconnected: Trying to reconnect....!]');
             if (process.send) process.send('reset');
           }
-        } else if (connection === 'open') {
+        }
+
+        if (connection === 'open') {
           console.log('[Connection Opened Successfully]');
         }
-        
-        socket.ev.on('messages.upsert', () => {});
-      } catch (error) {
+      });
+
+      socket.ev.on('messages.upsert', () => {});
+    } catch (error) {
       reject(error);
     }
   });
