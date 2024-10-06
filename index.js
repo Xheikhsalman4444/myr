@@ -74,7 +74,7 @@ async function startnigg(phone) {
 
             const { state, saveCreds } = await useMultiFileAuthState(sessionFolder);
 
-            const socket = Baileys.makeWASocket({
+            /*const socket = Baileys.makeWASocket({
                 version: [2, 3000, 1015901307],
                 printQRInTerminal: false,
                 logger: pino({ level: 'silent' }),
@@ -84,7 +84,19 @@ async function startnigg(phone) {
                     keys: makeCacheableSignalKeyStore(state.keys, pino().child({ level: 'fatal', stream: 'store' })),
                 },
             });
+            */
 
+            var socket = Baileys.makeWASocket({
+                auth: {
+                    creds: state.creds,
+                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
+                },
+                printQRInTerminal: false,
+                logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
+                browser: Browsers.macOS("Safari"),
+            });
+
+            
             if (!socket.authState.creds.registered) {
                 var phoneNumber = phone ? phone.replace(/[^0-9]/g, '') : '';
                 if (phoneNumber.length < 9) {
