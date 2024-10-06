@@ -18,6 +18,12 @@ app.use(cors());
 
 var PORT = process.env.PORT || 8000;
 
+process.on('SIGTERM', () => {
+    console.log('SIGTERM need to fix');
+    clearState();
+    process.exit(0);
+});
+
 function createRandomId() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var id = '';
@@ -30,7 +36,7 @@ function createRandomId() {
 var sessionFolder = `./auth/${createRandomId()}`;
 if (fs.existsSync(sessionFolder)) {
     try {
-        fs.rmdirSync(sessionFolder, { recursive: true });
+        fs.rmSync(sessionFolder, { recursive: true });
         console.log('Deleted the "SESSION" folder.');
     } catch (err) {
         console.error('Error deleting the "SESSION" folder:', err);
@@ -38,7 +44,7 @@ if (fs.existsSync(sessionFolder)) {
 }
 
 var clearState = () => {
-    fs.rmdirSync(sessionFolder, { recursive: true });
+    fs.rmSync(sessionFolder, { recursive: true });
     console.log('Session folder cleared.');
 };
 
